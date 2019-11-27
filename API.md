@@ -1,11 +1,11 @@
-## Security Review API
+# Security Review API
 
 * hook_security_checks() and check returns
 * Check help
 * Standalone use of the checklist
 * Drush
 
-### hook_security_checks()
+## hook_security_checks()
 
 Checks returned from an implementation of hook_security_checks() look like the
 following.
@@ -24,7 +24,7 @@ array(
 The top level index is often the module name. Each check name (not title) should
 attempt to be unique.
 
-### Check return values
+## Check return values
 
 A check can return a boolean or NULL. A return value of TRUE means the check
 passed and the 'success' description will be used. FALSE means failure. A return
@@ -32,7 +32,7 @@ value of NULL is used in case the check can not run for any reason, an example
 being if a dependency is nesecessary to run the check and that depenency is not
 met.
 
-### Check help
+## Check help
 
 Implement $callback . '_help' to provide help for a check.
 

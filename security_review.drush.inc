@@ -8,7 +8,7 @@
 include_once dirname(__FILE__) . '/security_review.inc';
 
 /**
- * Implementation of hook_drush_command().
+ * Implements hook_drush_command().
  */
 function security_review_drush_command() {
   $items = array();
@@ -21,7 +21,7 @@ function security_review_drush_command() {
       'store' => 'Write results to the database',
       'log' => 'Log results of each check to watchdog, defaults to off',
       'lastrun' => 'Do not run the checklist, just print last results',
-      'check' => 'Comma-separated list of specified checks to run. See README.txt for list of options',
+      'check' => 'Comma-separated list of specified checks to run. See README.md for list of options',
       'skip' => 'Invert behavior of --check. Run all checks except specified checks',
       'short' => "Short result messages instead of full description (e.g. 'Text formats').",
       'results' => 'Show the incorrect settings for failed checks.',
@@ -29,7 +29,7 @@ function security_review_drush_command() {
     'examples' => array(
       'secrev' => 'Run the checklist and output the results',
       'secrev --store' => 'Run the checklist, store, and output the results',
-      'secrev --lastrun' => 'Output the stored results from the last run of the checklist'
+      'secrev --lastrun' => 'Output the stored results from the last run of the checklist',
     ),
     'outputformat' => array(
       'default' => 'table',
@@ -54,12 +54,12 @@ function security_review_drush_command() {
 }
 
 /**
- * Implementation of hook_drush_help().
+ * Implements hook_drush_help().
  */
 function security_review_drush_help($section) {
   switch ($section) {
     case 'drush:security-review':
-      return dt("Run configuration security checks on your Drupal site.");
+      return dt("Run configuration security checks on your Backdrop site.");
     case 'drush:password-check-setup':
       return dt("Creates a table and fills it with dictionary words for rainbow testing.");
   }
@@ -153,7 +153,7 @@ function security_review_drush() {
       }
     }
     if (empty($checklist)) {
-      return drush_set_error('EMPTY_CHECKLIST', dt("No checks to run. Run 'drush help secrev' for option use or consult the drush section of README.txt for further help."));
+      return drush_set_error('EMPTY_CHECKLIST', dt("No checks to run. Run 'drush help secrev' for option use or consult the drush section of README.md for further help."));
     }
     // Run the checklist.
     $checklist_results = security_review_run($checklist, $log ? TRUE : NULL);
@@ -262,6 +262,10 @@ function _security_review_drush_findings_output($check) {
   return $findings;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_drush_hash_setup() {
   $args = func_get_args();
   if (empty($args)) {

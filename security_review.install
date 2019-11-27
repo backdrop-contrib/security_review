@@ -10,7 +10,7 @@
  * Implements hook_enable().
  */
 function security_review_enable() {
-  drupal_set_message(t('Security Review module enabled. You should first set the module access permissions at !link. Be sure to grant permissions to trusted users only as this module can show sensitive site information.', array('!link' => l('admin/people/permissions', 'admin/people/permissions'))));
+  backdrop_set_message(t('Security Review module enabled. You should first set the module access permissions at !link. Be sure to grant permissions to trusted users only as this module can show sensitive site information.', array('!link' => l('admin/people/permissions', 'admin/people/permissions'))));
 }
 
 /**
@@ -53,30 +53,13 @@ function security_review_schema() {
       ),
       'skipuid' => array(
         'type' => 'int',
-        'default' => NULL
+        'default' => NULL,
       ),
     ),
     'primary key' => array('namespace', 'reviewcheck'),
   );
 
   return $schema;
-}
-
-/**
- * Implements hook_uninstall().
- */
-function security_review_uninstall() {
-  variable_del('security_review_untrusted_roles');
-  variable_del('security_review_log');
-  variable_del('security_review_last_run');
-}
-
-/**
- * Empty Security Review check result table for a fresh start on Drupal 7.
- */
-function security_review_update_7000(&$sandbox) {
-  db_truncate('security_review')->execute();
-  return t('Security Review table truncated.');
 }
 
 /**
@@ -88,7 +71,7 @@ function security_review_requirements($phase) {
 
   switch ($phase) {
     case 'runtime':
-    $failed_checks = FALSE;
+      $failed_checks = FALSE;
       $checks = security_review_get_stored_results();
       foreach ($checks as $check) {
         if ($check['result'] === FALSE && !$check['skip']) {
@@ -118,4 +101,39 @@ function security_review_requirements($phase) {
   }
 
   return $requirements;
+}
+
+/**
+ * Implements hook_update_last_removed().
+ */
+function security_review_update_last_removed() {
+  return 7000;
+}
+
+/**
+ * Update Drupal 7 variables to Backdrop.
+ */
+function security_review_update_1000() {
+  $config = config('security_review.settings');
+  $config->set('security_review_known_risky_fields', update_variable_get('security_review_known_risky_fields', ''));
+  $config->set('check_settings.security_review_base_url_method', update_variable_get('security_review_base_url_method', 'token'));
+  $config->set('security_review_untrusted_roles', update_variable_get('security_review_untrusted_roles', array(BACKDROP_AUTHENTICATED_ROLE, BACKDROP_ANONYMOUS_ROLE)));
+  $config->set('security_review_log', update_variable_get('security_review_log', 'TRUE'));
+  $config->save();
+
+  state_set('security_review_last_run', update_variable_get('security_review_last_run', ''));
+
+  update_variable_del('security_review_known_risky_fields');
+  update_variable_del('security_review_base_url_method');
+  update_variable_del('security_review_untrusted_roles');
+  update_variable_del('security_review_log');
+  update_variable_del('security_review_last_run');
+}
+
+/**
+ * Implements hook_install().
+ */
+function security_review_install() {
+  // Dynamically generated variable data was detected.
+  // /security_review/security_review.pages.inc line 143
 }

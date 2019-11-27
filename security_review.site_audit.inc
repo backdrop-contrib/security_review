@@ -90,7 +90,7 @@ abstract class SecurityReviewSiteAuditCheckAbstract extends SiteAuditCheckAbstra
   /**
    * Implements \SiteAudit\Check\Abstract\getResultInfo().
    */
-  public function getResultInfo() {}
+  public function getResultInfo() { }
 
   /**
    * Implements \SiteAudit\Check\Abstract\getResultPass().
@@ -102,12 +102,12 @@ abstract class SecurityReviewSiteAuditCheckAbstract extends SiteAuditCheckAbstra
   /**
    * Implements \SiteAudit\Check\Abstract\getResultWarn().
    */
-  public function getResultWarn() {}
+  public function getResultWarn() { }
 
   /**
    * Implements \SiteAudit\Check\Abstract\getAction().
    */
-  public function getAction() {}
+  public function getAction() { }
 
   /**
    * Implements \SiteAudit\Check\Abstract\calculateScore().

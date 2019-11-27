@@ -6,11 +6,11 @@
  */
 
 function _security_review_help() {
-  drupal_add_js(drupal_get_path('module', 'security_review') . '/security_review.js');
+  backdrop_add_js(backdrop_get_path('module', 'security_review') . '/js/security_review.js');
   $output = '';
   $output .= '<p>';
   $output .= t('You should take the security of your site very seriously.
-    Fortunately, Drupal is fairly secure by default.
+    Fortunately, Backdrop is fairly secure by default.
     The Security Review module automates many of the easy-to-make mistakes that render your site insecure, however it does not automatically make your site impenetrable.
     You should give care to what modules you install and how you configure your site and server.
     Be mindful of who visits your site and what features you expose for their use.');
@@ -30,7 +30,7 @@ function _security_review_help() {
 }
 
 function _security_review_help_ssl() {
-  $description = t('The transfer of data between the visitor on your site and you Drupal installation can be secured through encryption.');
+  $description = t('The transfer of data between the visitor on your site and you Backdrop installation can be secured through encryption.');
   $element = array(
     'problem' => t("Secure and private communication"),
     'type' => 'ssl',
@@ -60,6 +60,10 @@ function _security_review_help_spam() {
   return theme('security_review_help_options', array('element' => $element));
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function theme_security_review_help_options($element) {
   $output = '<div class="sec-rev-help-option">';
   $output .= l($element['problem'], 'admin/reports/security-review/help', array('fragment' => $element['type'], 'attributes' => array('class' => 'sec-rev-help-dyn')));
@@ -74,9 +78,13 @@ function theme_security_review_help_options($element) {
   return $output;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_file_perms_help($check = NULL, $skipped_message = NULL) {
   $element['title'] =  t("Web server file system permissions");
-  $element['descriptions'][] = t("It is dangerous to allow the web server to write to files inside the document root of your server. Doing so could allow Drupal to write files that could then be executed. An attacker might use such a vulnerability to take control of your site. An exception is the Drupal files, private files, and temporary directories which Drupal needs permission to write to in order to provide features like file attachments.");
+  $element['descriptions'][] = t("It is dangerous to allow the web server to write to files inside the document root of your server. Doing so could allow Backdrop to write files that could then be executed. An attacker might use such a vulnerability to take control of your site. An exception is the Backdrop files, private files, and temporary directories which Backdrop needs permission to write to in order to provide features like file attachments.");
   $element['descriptions'][] = t("In addition to inspecting existing directories, this test attempts to create and write to your file system. Look in your security_review module directory on the server for files named file_write_test.YYYYMMDDHHMMSS and for a file called IGNOREME.txt which gets a timestamp appended to it if it is writeable.</p>");
   $element['descriptions'][] = t("<a href='!link'>Read more about file system permissions in the handbooks.</a>", array('!link' => url('http://drupal.org/node/244924')));
 
@@ -95,10 +103,14 @@ function security_review_check_file_perms_help($check = NULL, $skipped_message =
   return $element;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_input_formats_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Allowed HTML tags in text formats');
-  $element['descriptions'][] = t("Certain HTML tags can allow an attacker to take control of your site. Drupal's input format system makes use of a set filters to run on incoming text. The 'HTML Filter' strips out harmful tags and Javascript events and should be used on all formats accessible by untrusted users.");
-  $element['descriptions'][] = t("<a href='!link'>Read more about Drupal's input formats in the handbooks.</a>", array('!link' => url('http://drupal.org/node/224921')));
+  $element['descriptions'][] = t("Certain HTML tags can allow an attacker to take control of your site. Backdrop's input format system makes use of a set filters to run on incoming text. The 'HTML Filter' strips out harmful tags and Javascript events and should be used on all formats accessible by untrusted users.");
+  $element['descriptions'][] = t("<a href='!link'>Read more about Backdrop's input formats in the handbooks.</a>", array('!link' => url('http://drupal.org/node/224921')));
 
   if ($skipped_message) {
     $element['findings']['descriptions'][] = $skipped_message;
@@ -128,9 +140,13 @@ function security_review_check_input_formats_help($check = NULL, $skipped_messag
   return $element;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_php_filter_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('PHP Input Format');
-  $element['descriptions'][] = t("Drupal's PHP Text Format allows for the interpretation and execution of PHP code via user-supplied input. Because this input runs in the context of Drupal itself it has access to everything Drupal does.");
+  $element['descriptions'][] = t("Backdrop's PHP Text Format allows for the interpretation and execution of PHP code via user-supplied input. Because this input runs in the context of Backdrop itself it has access to everything Backdrop does.");
 
   if (!empty($skipped_message)) {
     $element['findings']['descriptions'][] = $skipped_message;
@@ -150,9 +166,13 @@ function security_review_check_php_filter_help($check = NULL, $skipped_message =
   return $element;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_error_reporting_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Error reporting');
-  $element['descriptions'][] = t('As a form of hardening your site you should avoid information disclosure. Drupal by default prints errors to the screen and writes them to the log. Error messages disclose the full path to the file where the error occured.');
+  $element['descriptions'][] = t('As a form of hardening your site you should avoid information disclosure. Backdrop by default prints errors to the screen and writes them to the log. Error messages disclose the full path to the file where the error occured.');
 
   if (!empty($skipped_message)) {
     $element['findings']['descriptions'][] = $skipped_message;
@@ -164,9 +184,13 @@ function security_review_check_error_reporting_help($check = NULL, $skipped_mess
   return $element;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_private_files_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Private files');
-  $element['descriptions'][] = t("If you have Drupal's private files feature enabled you should move the files directory outside of the web server's document root. Drupal will secure access to files that it renders the link to, but if a user knows the actual system path they can circumvent Drupal's private files feature. You can protect against this by specifying a files directory outside of the webserver root.");
+  $element['descriptions'][] = t("If you have Backdrop's private files feature enabled you should move the files directory outside of the web server's document root. Backdrop will secure access to files that it renders the link to, but if a user knows the actual system path they can circumvent Backdrop's private files feature. You can protect against this by specifying a files directory outside of the webserver root.");
 
   if (!empty($skipped_message)) {
     $element['findings']['descriptions'][] = $skipped_message;
@@ -182,6 +206,10 @@ function security_review_check_private_files_help($check = NULL, $skipped_messag
   return $element;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_query_errors_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Abundant query errors from the same IP');
   $element['descriptions'][] = t("Database errors triggered from the same IP may be an artifact of a malicious user attempting to probe the system for weaknesses like SQL injection or information disclosure.");
@@ -201,6 +229,10 @@ function security_review_check_query_errors_help($check = NULL, $skipped_message
   return $element;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_failed_logins_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Abundant failed logins from the same IP');
   $element['descriptions'][] = t("Failed login attempts from the same IP may be an artifact of a malicous user attempting to brute-force their way onto your site as an authenticated user to carry out nefarious deeds. ");
@@ -220,10 +252,14 @@ function security_review_check_failed_logins_help($check = NULL, $skipped_messag
   return $element;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_admin_permissions_help($check = NULL, $skipped_message = NULL) {
-  $element['title'] = t('Admin and trusted Drupal permissions');
-  $element['descriptions'][] = t("Drupal's permission system is extensive and allows for varying degrees of control. Certain permissions would allow a user total control, or the ability to escalate their control, over your site and should only be granted to trusted users.");
-  $element['descriptions'][] = t('<a href="!link">Read more about trusted vs. untrusted roles and permissions on DrupalScout.com.</a>', array('!link' => url('http://drupalscout.com/knowledge-base/importance-user-roles-and-permissions-site-security')));
+  $element['title'] = t('Admin and trusted Backdrop permissions');
+  $element['descriptions'][] = t("Backdrop's permission system is extensive and allows for varying degrees of control. Certain permissions would allow a user total control, or the ability to escalate their control, over your site and should only be granted to trusted users.");
+  $element['descriptions'][] = t('<a href="!link">Read more about trusted vs. untrusted roles and permissions on BackdropScout.com.</a>', array('!link' => url('http://backdropscout.com/knowledge-base/importance-user-roles-and-permissions-site-security')));
 
   if (!empty($skipped_message)) {
     $element['findings']['descriptions'][] = $skipped_message;
@@ -245,9 +281,13 @@ function security_review_check_admin_permissions_help($check = NULL, $skipped_me
   return $element;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_field_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Dangerous tags in content');
-  $element['descriptions'][] = t('Script and PHP code in content does not align with Drupal best practices and may be a vulnerability if an untrusted user is allowed to edit such content. It is recommended you remove such contents or add the hash of the content to the security_review_known_risky_fields system variable (see the README.txt for more information).');
+  $element['descriptions'][] = t('Script and PHP code in content does not align with Backdrop best practices and may be a vulnerability if an untrusted user is allowed to edit such content. It is recommended you remove such contents or add the hash of the content to the security_review_known_risky_fields system variable (see the README.md for more information).');
 
   if (!empty($skipped_message)) {
     $element['findings']['descriptions'][] = $skipped_message;
@@ -285,6 +325,10 @@ function security_review_check_field_help($check = NULL, $skipped_message = NULL
   return $element;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_upload_extensions_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Allowed upload extensions');
   $element['descriptions'][] = t('File and image fields allow for uploaded files. Some extensions are considered dangerous because the files can be evaluated and then executued in the browser. A malicious user could use this opening to gain control of your site. Review <a href="@fields_report">all fields on your site</a>.', array('@fields_report' => url('admin/reports/fields')));
@@ -307,6 +351,10 @@ function security_review_check_upload_extensions_help($check = NULL, $skipped_me
   return $element;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_views_access_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Views access');
   $element['descriptions'][] = t("Views can check if the user is allowed access to the content. It is recommended that all Views implement some amount of access control, at a minimum checking for the permission 'access content'.");
@@ -317,7 +365,7 @@ function security_review_check_views_access_help($check = NULL, $skipped_message
   elseif ($check && $check['result'] == FALSE) {
     $element['findings']['descriptions'][] = t('The following View displays do not check access.');
     foreach ($check['value'] as $view => $displays) {
-      $url = 'admin/structure/views/view/' . $view . '/edit/';
+      $url = 'admin/structure/views/view/' . $view . '/configure/';
       foreach ($displays as $display) {
         $item = $view . ': ' . $display;
         $element['findings']['items'][] = array(
@@ -332,6 +380,10 @@ function security_review_check_views_access_help($check = NULL, $skipped_message
   return $element;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_name_passwords_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Username as password');
   $element['descriptions'][] = t("Users with elevated access on the site (trusted users) who have a their account password the same as their username. It is recommended you enforce a password strength policy to avoid an attacker easily gaining access to your site.");
@@ -354,10 +406,14 @@ function security_review_check_name_passwords_help($check = NULL, $skipped_messa
   return $element;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_executable_php_help($check = NULL, $skipped_message = NULL) {
   $element = array();
   $element['title'] = t('Executable PHP in files directory');
-  $element['descriptions'][] = t("The Drupal files directory is for user-uploaded files and by default provides some protection against a malicious user executing arbitrary PHP code against your site.");
+  $element['descriptions'][] = t("The Backdrop files directory is for user-uploaded files and by default provides some protection against a malicious user executing arbitrary PHP code against your site.");
   $element['descriptions'][] = t('Read more about the <a href="!link">risk of PHP code execution on Drupal.org</a>.', array('!link' => 'https://drupal.org/node/615888'));
 
   if (!empty($skipped_message)) {
@@ -370,16 +426,16 @@ function security_review_check_executable_php_help($check = NULL, $skipped_messa
           $element['findings']['descriptions'][] = t('Security Review was able to execute a PHP file written to your files directory.');
           break;
         case 'missing_htaccess':
-          $directory = variable_get('file_public_path', 'sites/default/files');
+          $directory = config_get('system.core', 'file_public_path');
           $element['findings']['descriptions'][] = t("The .htaccess file is missing from the files directory at !path", array('!path' => $directory));
           $element['findings']['descriptions'][] = t("Note, if you are using a webserver other than Apache you should consult your server's documentation on how to limit the execution of PHP scripts in this directory.");
           break;
         case 'incorrect_htaccess':
-            $element['findings']['descriptions'][] = t("The .htaccess file exists but does not contain the correct content. It is possible it's been maliciously altered.");
-            break;
+          $element['findings']['descriptions'][] = t("The .htaccess file exists but does not contain the correct content. It is possible it's been maliciously altered.");
+          break;
         case 'outdated_core':
-            $element['findings']['descriptions'][] = t("You are running a out-of-date Drupal installation that is vulnerable to arbitrary code execution via weak htaccess protection. Upgrade to the latest version of Drupal. See <a href='https://drupal.org/SA-CORE-2013-003'>SA-CORE-2013-003 - Drupal core - Multiple vulnerabilities</a> for the full report.");
-            break;
+          $element['findings']['descriptions'][] = t("You are running a out-of-date Backdrop installation that is vulnerable to arbitrary code execution via weak htaccess protection. Upgrade to the latest version of Backdrop. See <a href='https://drupal.org/SA-CORE-2013-003'>SA-CORE-2013-003 - Drupal core - Multiple vulnerabilities</a> for the full report.");
+          break;
         case 'writable_htaccess':
           $element['findings']['descriptions'][] = t("The .htaccess file is writeable which poses a risk should a malious user find a way to execute PHP code they could alter the htaccess file to allow further PHP code execution.");
           break;
@@ -390,34 +446,42 @@ function security_review_check_executable_php_help($check = NULL, $skipped_messa
   return $element;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_base_url_help($check = NULL, $skipped_message = NULL) {
   global $base_url;
   $element = array();
-  $element['title'] = t('Drupal base URL');
-  $element['descriptions'][] = t("Setting Drupal's \$base_url in settings.php can help protect against attackers manipulating links to your site. For example, an attacker could exploit a missing \$base_url setting to carry out a phishing attack that may lead to the theft of your site's private user data.");
+  $element['title'] = t('Backdrop base URL');
+  $element['descriptions'][] = t("Setting Backdrop's \$base_url in settings.php can help protect against attackers manipulating links to your site. For example, an attacker could exploit a missing \$base_url setting to carry out a phishing attack that may lead to the theft of your site's private user data.");
 
   if (!empty($skipped_message)) {
     $element['findings']['descriptions'][] = $skipped_message;
   }
   elseif ($check && $check['result'] == FALSE) {
     $element['findings']['descriptions'][] = t('Your site is available at the following URL: !url.', array('!url' => $base_url));
-    $element['findings']['descriptions'][] = t("If your site should only be available at that URL it is recommended that you set it as the \$base_url variable in the settings.php file at !file", array('!file' => DRUPAL_ROOT . '/' . conf_path() . '/settings.php'));
-    $element['findings']['descriptions'][] = t("Or, if you are using Drupal's multi-site functionality then you should set the \$base_url variable for the appropriate settings.php for your site.");
+    $element['findings']['descriptions'][] = t("If your site should only be available at that URL it is recommended that you set it as the \$base_url variable in the settings.php file at !file", array('!file' => BACKDROP_ROOT . '/' . conf_path() . '/settings.php'));
+    $element['findings']['descriptions'][] = t("Or, if you are using Backdrop's multi-site functionality then you should set the \$base_url variable for the appropriate settings.php for your site.");
   }
 
   return $element;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_temporary_files_help($check = NULL, $skipped_message = NULL) {
   $element = array();
   $element['title'] = t('Sensitive temporary files');
-  $element['descriptions'][] = t("Some file editors create temporary copies of a file that can be left on the file system. A copy of a sensitive file like Drupal's settings.php may be readable by a malicious user who could use that information to further attack a site.");
+  $element['descriptions'][] = t("Some file editors create temporary copies of a file that can be left on the file system. A copy of a sensitive file like Backdrop's settings.php may be readable by a malicious user who could use that information to further attack a site.");
 
   if (!empty($skipped_message)) {
     $element['findings']['descriptions'][] = $skipped_message;
   }
   elseif ($check && $check['result'] == FALSE) {
-    $element['findings']['descriptions'][] = t("The following are extraneous files in your Drupal installation that can probably be removed. You should confirm you have saved any of your work in the original files prior to removing these.");
+    $element['findings']['descriptions'][] = t("The following are extraneous files in your Backdrop installation that can probably be removed. You should confirm you have saved any of your work in the original files prior to removing these.");
     foreach ($check['value'] as $path) {
       $element['findings']['items'][] = array(
         'safe' => check_plain($path),

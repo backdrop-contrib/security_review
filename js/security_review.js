@@ -1,4 +1,4 @@
-Drupal.behaviors.securityReview = function(context) {
+Backdrop.behaviors.securityReview = function(context) {
   $('.sec-rev-dyn').click(function() {
     anchor = $(this);
     row = $(this).parent().parent();
@@ -18,7 +18,7 @@ Drupal.behaviors.securityReview = function(context) {
     });
     return false;
   });
-  
+
   $('.sec-rev-help-content').hide();
   $('.sec-rev-help-dyn').click(function() {
     $('.sec-rev-help-content').hide();

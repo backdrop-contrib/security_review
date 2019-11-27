@@ -17,7 +17,7 @@ function security_review_page() {
   $checks = security_review_get_stored_results();
   // Only users with the proper permission can run the checklist.
   if (user_access('run security checks')) {
-    $output += drupal_get_form('security_review_run_form', $checks);
+    $output += backdrop_get_form('security_review_run_form', $checks);
   }
 
   if (!empty($checks)) {
@@ -26,17 +26,21 @@ function security_review_page() {
   }
   else {
     // If they haven't configured the site, prompt them to do so.
-    $variable = variable_get('security_review_log', FALSE);
+    $variable = config_get('security_review.settings', 'security_review_log');
     if (!$variable) {
-      drupal_set_message(t('It appears this is your first time using the Security Review checklist. Before running the checklist please review the settings page at !link to set which roles are untrusted.', array('!link' => l('admin/reports/security-review/settings', 'admin/reports/security-review/settings'))));
+      backdrop_set_message(t('It appears this is your first time using the Security Review checklist. Before running the checklist please review the settings page at !link to set which roles are untrusted.', array('!link' => l('admin/reports/security-review/settings', 'admin/reports/security-review/settings'))));
     }
   }
   return $output;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_reviewed($checklist, $checks, $namespace = NULL) {
   $items = array();
-  $last_run = variable_get('security_review_last_run', '');
+  $last_run = state_get('security_review_last_run');
   $date = !empty($last_run) ? format_date($last_run) : '';
   $header = t('Review results from last run !date', array('!date' => $date));
   $desc = t("Here you can review the results from the last run of the checklist. Checks are not always perfectly correct in their procedure and result. You can keep a check from running by clicking the 'Skip' link beside it. You can run the checklist again by expanding the fieldset above.");
@@ -49,7 +53,7 @@ function security_review_reviewed($checklist, $checks, $namespace = NULL) {
     $title = $check['result'] ? t('OK') : t('Error');
     $class = $check['skip'] ? 'info' : ($check['result'] ? 'ok' : 'error');
     $toggle = $check['skip'] ? t('Enable') : t('Skip');
-    $token = drupal_get_token($check['reviewcheck']);
+    $token = backdrop_get_token($check['reviewcheck']);
     $link_options = array(
       'query' => array('token' => $token),
       //'attributes' => array('class' => 'use-ajax'),
@@ -68,6 +72,10 @@ function security_review_reviewed($checklist, $checks, $namespace = NULL) {
   return array('#markup' => $output);
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_run_form($form, &$form_state, $checks = NULL) {
   $form['run_form'] = array(
     '#type' => 'fieldset',
@@ -84,6 +92,10 @@ function security_review_run_form($form, &$form_state, $checks = NULL) {
   return $form;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_run_form_submit($form, &$form_state) {
   module_load_include('inc', 'security_review');
   $checklist = security_review_get_checklist();
@@ -101,13 +113,14 @@ function security_review_run_form_submit($form, &$form_state) {
   }
 
   // Use Batch to process the checklist.
-  $batch = array('operations' => array(),
+  $batch = array(
+    'operations' => array(),
     'title' => t('Performing Security Review'),
     'progress_message' => t('Progress @current out of @total.'),
     'error_message' => t('An error occurred. Rerun the process or consult the logs.'),
     'finished' => '_security_review_batch_finished',
   );
-  $log = variable_get('security_review_log', TRUE);
+  $log = config_get('security_review.settings', 'security_review_log');
   foreach ($checklist as $module => $checks) {
     foreach ($checks as $check_name => $check) {
       // Each check is its own operation. There could be a case where a single
@@ -123,6 +136,7 @@ function security_review_run_form_submit($form, &$form_state) {
  * Module settings form.
  */
 function security_review_settings() {
+  $config = config('security_review.settings');
   module_load_include('inc', 'security_review');
   $checklist = security_review_get_checklist();
   $roles = user_roles();
@@ -131,16 +145,17 @@ function security_review_settings() {
   }
   $message = '';
   $defaults = _security_review_default_untrusted_roles();
-  if (array_key_exists(DRUPAL_AUTHENTICATED_RID, $defaults)) {
+  if (array_key_exists(BACKDROP_AUTHENTICATED_ROLE, $defaults)) {
     $message = 'You have allowed anonymous users to create accounts without approval so the authenticated role defaults to untrusted.';
   }
 
+  $form['#config'] = 'security_review.settings';
   $form['security_review_untrusted_roles'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Untrusted roles'),
     '#description' => t('Mark which roles are not trusted. The anonymous role defaults to untrusted. @message Read more about the idea behind trusted and untrusted roles on <a href="!url">DrupalScout.com</a>. Most Security Review checks look for resources usable by untrusted roles.', array('@message' => $message, '!url' => url('http://drupalscout.com/knowledge-base/importance-user-roles-and-permissions-site-security'))),
     '#options' => $options,
-    '#default_value' => variable_get('security_review_untrusted_roles', array_keys($defaults)),
+    '#default_value' => $config->get('security_review_untrusted_roles'),
   );
 
   $inactive_namespaces = array();
@@ -156,7 +171,7 @@ function security_review_settings() {
     $form['inactive_checks'] = array(
       '#prefix' => '<div class="messages warning">',
       '#suffix' => '</div>',
-      '#markup' => t('Inactive checks are being stored under namespaces: %modules. Enabling associated modules may allow these checks to be run again. Inactive checks must be manually removed or uninstall and reinstall Security Review to clear all stored checks.', array('%modules' => $inactive_checks))
+      '#markup' => t('Inactive checks are being stored under namespaces: %modules. Enabling associated modules may allow these checks to be run again. Inactive checks must be manually removed or uninstall and reinstall Security Review to clear all stored checks.', array('%modules' => $inactive_checks)),
     );
   }
 
@@ -170,7 +185,7 @@ function security_review_settings() {
     '#type' => 'checkbox',
     '#title' => t('Log checklist results and skips'),
     '#description' => t('The result of each check and skip can be logged to watchdog for tracking.'),
-    '#default_value' => variable_get('security_review_log', TRUE),
+    '#default_value' => $config->get('security_review_log'),
   );
   $options = $values = array();
 
@@ -212,7 +227,7 @@ function security_review_settings() {
       'token' => t('Tokenize settings.php (recommended)'),
       'include' => t('Include settings.php'),
     ),
-    '#default_value' => variable_get('security_review_base_url_method', 'token'),
+    '#default_value' => $config->get('check_settings.security_review_base_url_method'),
   );
   // Add a submit handler to set the skipped checks.
   $form['#submit'][] = '_security_review_settings_submit';
@@ -229,7 +244,7 @@ function _security_review_settings_submit($form, &$form_state) {
 
   $stored = array();
   $results = db_query("SELECT namespace, reviewcheck, result, lastrun, skip, skiptime, skipuid FROM {security_review}");
-  while($record = $results->fetchAssoc()) {
+  while ($record = $results->fetchAssoc()) {
     $stored[$record['namespace']][$record['reviewcheck']] = $record;
   }
 
@@ -245,7 +260,7 @@ function _security_review_settings_submit($form, &$form_state) {
         $record->skip = FALSE;
         $record->skiptime = 0;
         $record->skipuid = NULL;
-        $result = drupal_write_record('security_review', $record, array('namespace', 'reviewcheck'));
+        $result = backdrop_write_record('security_review', $record, array('namespace', 'reviewcheck'));
         if ($log) {
           $variables = array('!name' => $check['title']);
           _security_review_log($module, $check_name, '!name check no longer skipped', $variables, WATCHDOG_INFO);
@@ -261,7 +276,7 @@ function _security_review_settings_submit($form, &$form_state) {
         $record->skip = TRUE;
         $record->skiptime = REQUEST_TIME;
         $record->skipuid = $user->uid;
-        $result = drupal_write_record('security_review', $record, $update);
+        $result = backdrop_write_record('security_review', $record, $update);
         if ($log) {
           $variables = array('!name' => $check['title']);
           _security_review_log($module, $check_name, '!name check skipped', $variables, WATCHDOG_INFO);
@@ -274,6 +289,7 @@ function _security_review_settings_submit($form, &$form_state) {
 
   // Set check-specific settings.
   foreach ($form_state['values']['check_settings'] as $variable_name => $value) {
+    // TODO This variable was probably removed in Backdrop without replacement.
     variable_set($variable_name, $value);
   }
 }
@@ -283,8 +299,8 @@ function _security_review_settings_submit($form, &$form_state) {
  */
 function security_review_toggle_check($type = 'ajax', $check_name) {
   global $user;
-  if (!isset($_GET['token']) || !drupal_valid_token($_GET['token'], $check_name)) {
-    return drupal_access_denied();
+  if (!isset($_GET['token']) || !backdrop_valid_token($_GET['token'], $check_name)) {
+    return backdrop_access_denied();
   }
   $result = FALSE;
   // To be sure, compare the user-provided check with available checks.
@@ -312,9 +328,9 @@ function security_review_toggle_check($type = 'ajax', $check_name) {
         $record->skipuid = $user->uid;
         $message = '!name check skipped';
       }
-      $result = drupal_write_record('security_review', $record, array('namespace', 'reviewcheck'));
+      $result = backdrop_write_record('security_review', $record, array('namespace', 'reviewcheck'));
       // To log, or not to log?
-      $log = variable_get('security_review_log', TRUE);
+      $log = config_get('security_review.settings', 'security_review_log');
       if ($log) {
         $variables = array('!name' => $checks[$check_name]['title']);
         _security_review_log($module, $check_name, $message, $variables, WATCHDOG_INFO);
@@ -323,13 +339,13 @@ function security_review_toggle_check($type = 'ajax', $check_name) {
     }
   }
   if ($type == 'ajax') {
-    drupal_json_output($record);
+    backdrop_json_output($record);
     return;
   }
   else {
     // We weren't invoked via JS so set a message and return to the review page.
-    drupal_set_message(t($message, array('!name' => $checks[$check_name]['title'])));
-    drupal_goto('admin/reports/security-review');
+    backdrop_set_message(t($message, array('!name' => $checks[$check_name]['title'])));
+    backdrop_goto('admin/reports/security-review');
   }
 }
 
@@ -390,7 +406,7 @@ function security_review_check_help($module = NULL, $check_name = NULL) {
     $output = _security_review_help();
     // List all checks as links to specific help.
     $output .= '<h3>' . t('Check-specific help') . '</h3>';
-    $output .= '<p>' . t("Details and help on the security review checks. Checks are not always perfectly correct in their procedure and result. Refer to drupal.org handbook documentation if you are unsure how to make the recommended alterations to your configuration or consult the module's README.txt for support.") . '</p>';
+    $output .= '<p>' . t("Details and help on the security review checks. Checks are not always perfectly correct in their procedure and result. Refer to drupal.org handbook documentation if you are unsure how to make the recommended alterations to your configuration or consult the module's README.md for support.") . '</p>';
     foreach ($checklist as $module => $checks) {
       foreach ($checks as $reviewcheck => $check) {
         $items[] = l($check['title'], 'admin/reports/security-review/help/' . $module . '/' . $reviewcheck);
@@ -401,14 +417,18 @@ function security_review_check_help($module = NULL, $check_name = NULL) {
     }
   }
   if (empty($output)) {
-    return drupal_not_found();
+    return backdrop_not_found();
   }
   return array('#markup' => $output);
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function theme_security_review_reviewed($variables) {
   // @todo
-  //drupal_add_js(drupal_get_path('module', 'security_review') . '/security_review.js', array('scope' => 'footer'));
+  //backdrop_add_js(backdrop_get_path('module', 'security_review') . '/js/security_review.js', array('scope' => 'footer'));
   $output = '<h3>' . $variables['header'] . '</h3>';
   $output .= '<p>' . $variables['description'] . '</p>';
   $output .= '<table class="system-status-report">';

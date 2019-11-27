@@ -60,7 +60,10 @@ function _security_review_run($checklist, $log = FALSE) {
  * Run a single Security Review check.
  */
 function _security_review_run_check($module, $check_name, $check, $log, $store = FALSE) {
-  $variables = array('@title' => $check['title'], '@name' => $check_name);
+  $variables = array(
+    '@title' => $check['title'],
+    '@name' => $check_name,
+  );
   _security_review_log($module, $check_name, 'Beginning the @title (@name) security review check.', $variables, WATCHDOG_INFO);
   $last_check = array();
   if ($store) {
@@ -104,7 +107,7 @@ function _security_review_security_checks() {
   $checks['file_perms'] = array(
     'title' => t('File system permissions'),
     'callback' => 'security_review_check_file_perms',
-    'success' => t('Drupal installation files and directories (except required) are not writable by the server.'),
+    'success' => t('Backdrop installation files and directories (except required) are not writable by the server.'),
     'failure' => t('Some files and directories in your install are writable by the server.'),
   );
   $checks['input_formats'] = array(
@@ -154,10 +157,10 @@ function _security_review_security_checks() {
     'failure' => t('Unsafe file extensions are allowed in uploads.'),
   );
   $checks['admin_permissions'] = array(
-    'title' => t('Drupal permissions'),
+    'title' => t('Backdrop permissions'),
     'callback' => 'security_review_check_admin_permissions',
-    'success' => t('Untrusted roles do not have administrative or trusted Drupal permissions.'),
-    'failure' => t('Untrusted roles have been granted administrative or trusted Drupal permissions.'),
+    'success' => t('Untrusted roles do not have administrative or trusted Backdrop permissions.'),
+    'failure' => t('Untrusted roles have been granted administrative or trusted Backdrop permissions.'),
   );
   $checks['name_passwords'] = array(
     'title' => t('Username as password'),
@@ -177,11 +180,11 @@ function _security_review_security_checks() {
   $checks['executable_php'] = array(
     'title' => t('Executable PHP'),
     'callback' => 'security_review_check_executable_php',
-    'success' => t('PHP files in the Drupal files directory cannot be executed.'),
-    'failure' => t('PHP files in the Drupal files directory can be executed.'),
+    'success' => t('PHP files in the Backdrop files directory cannot be executed.'),
+    'failure' => t('PHP files in the Backdrop files directory can be executed.'),
   );
   $checks['base_url_set'] = array(
-    'title' => t('Drupal base URL'),
+    'title' => t('Backdrop base URL'),
     'callback' => 'security_review_check_base_url',
     'success' => t('Base URL is set in settings.php.'),
     'failure' => t('Base URL is not set in settings.php.'),
@@ -217,18 +220,19 @@ function views_security_checks() {
  * Check that files aren't writeable by the server.
  */
 function security_review_check_file_perms() {
+  $config = config('security_review.settings');
   $result = TRUE;
   // Extract ending folder for file directory path.
-  $file_path = './' . rtrim(variable_get('file_public_path', conf_path() . '/files'), '/');
+  $file_path = './' . rtrim(config_get('system.core', 'file_public_path'), '/');
   // Set files to ignore.
   $ignore = array('..', 'CVS', '.git', '.svn', '.bzr', realpath($file_path));
   // Add temporary files directory if it's set.
-  $temp_path = variable_get('file_temporary_path', '');
+  $temp_path = config_get('system.core', 'file_temporary_path');
   if (!empty($temp_path)) {
     $ignore[] = realpath('./' . rtrim($temp_path, '/'));
   }
   // Add private files directory if it's set.
-  $private_files = variable_get('file_private_path', '');
+  $private_files = config_get('system.core', 'file_private_path');
   if (!empty($private_files)) {
     // Remove leading slash if set.
     if (strrpos($private_files, '/') !== FALSE) {
@@ -236,7 +240,7 @@ function security_review_check_file_perms() {
     }
     $ignore[] = $private_files;
   }
-  drupal_alter('security_review_file_ignore', $ignore);
+  backdrop_alter('security_review_file_ignore', $ignore);
   $parsed = array(realpath('.'));
   $files = _security_review_check_file_perms_scan('.', $parsed, $ignore);
 
@@ -246,7 +250,7 @@ function security_review_check_file_perms() {
 
   $append_message = t("Your web server should not be able to write to your modules directory. This is a security vulnerable. Consult the Security Review file permissions check help for mitigation steps.");
 
-  $directory = drupal_get_path('module', 'security_review');
+  $directory = backdrop_get_path('module', 'security_review');
   // Write a file with the timestamp
   $file = './' . $directory . '/file_write_test.' . date('Ymdhis');
   if ($file_create = @fopen($file, 'w')) {
@@ -254,7 +258,7 @@ function security_review_check_file_perms() {
     fclose($file_create);
   }
   // Try to append to our IGNOREME file.
-  $file = './'. $directory . '/IGNOREME.txt';
+  $file = './' . $directory . '/IGNOREME.txt';
   if ($file_append = @fopen($file, 'a')) {
     $append_status = fwrite($file_append, date('Ymdhis') . ' - ' . $append_message . "\n");
     fclose($file_append);
@@ -314,7 +318,7 @@ function security_review_check_input_formats() {
         // Check for unsafe tags in allowed tags.
         $allowed_tags = $filter->settings['allowed_html'];
         $unsafe_tags = security_review_unsafe_tags();
-        drupal_alter('security_review_unsafe_tags', $unsafe_tags);
+        backdrop_alter('security_review_unsafe_tags', $unsafe_tags);
         foreach ($unsafe_tags as $tag) {
           if (strpos($allowed_tags, '<' . $tag . '>') !== FALSE) {
             // Found an unsafe tag
@@ -335,6 +339,10 @@ function security_review_check_input_formats() {
   return array('result' => $result, 'value' => $check_result_value);
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_php_filter() {
   $result = TRUE;
   $formats = filter_formats();
@@ -359,8 +367,12 @@ function security_review_check_php_filter() {
   return array('result' => $result, 'value' => $check_result_value);
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_error_reporting() {
-  $error_level = variable_get('error_level', NULL);
+  $error_level = config_get('system.core', 'error_level');
   if (is_null($error_level) || intval($error_level) >= 1) {
     // When the variable isn't set, or its set to 1 or 2 errors are printed to the screen.
     $result = FALSE;
@@ -377,11 +389,11 @@ function security_review_check_error_reporting() {
  * There is ample room for the user to get around this check. @TODO get more sophisticated?
  */
 function security_review_check_private_files() {
-  $file_directory_path = variable_get('file_private_path', '');
+  $file_directory_path = config_get('system.core', 'file_private_path');
   if (empty($file_directory_path)) {
     $result = NULL; // Ignore this check.
   }
-  elseif (strpos(realpath($file_directory_path), DRUPAL_ROOT) === 0) {
+  elseif (strpos(realpath($file_directory_path), BACKDROP_ROOT) === 0) {
     // Path begins at root.
     $result = FALSE;
   }
@@ -391,6 +403,10 @@ function security_review_check_private_files() {
   return array('result' => $result, 'value' => $file_directory_path);
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_query_errors($last_check = NULL) {
   $timestamp = NULL;
   $check_result_value = array();
@@ -424,6 +440,10 @@ function security_review_check_query_errors($last_check = NULL) {
   return array('result' => $result, 'value' => $check_result_value);
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_failed_logins($last_check = NULL) {
   $result = TRUE;
   $timestamp = NULL;
@@ -468,12 +488,12 @@ function security_review_check_admin_permissions() {
   $all_permissions = module_invoke_all('permission');
   $all_keys = array_keys($all_permissions);
   // Get permissions for untrusted roles.
-  $untrusted_permissions = user_role_permissions($untrusted_roles);
-  foreach ($untrusted_permissions as $rid => $permissions) {
-    $intersect = array_intersect($all_keys, array_keys($permissions));
+  foreach ($untrusted_roles as $untrusted_role) {
+    $untrusted_permissions = user_role_permissions(array($untrusted_role));
+    $intersect = array_intersect($all_keys, $untrusted_permissions);
     foreach ($intersect as $permission) {
       if (!empty($all_permissions[$permission]['restrict access'])) {
-        $check_result_value[$rid][] = $permission;
+        $check_result_value[$untrusted_role][] = $permission;
       }
     }
   }
@@ -484,6 +504,10 @@ function security_review_check_admin_permissions() {
   return array('result' => $result, 'value' => $check_result_value);
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_field($last_check = NULL) {
   $check_result = TRUE;
   $check_result_value = $tables = $found = array();
@@ -519,12 +543,15 @@ function security_review_check_field($last_check = NULL) {
     return array('result' => $check_result, 'value' => $check_result_value);
   }
   // Search for PHP or Javascript tags in text columns.
-  $known_risky_fields = explode(',', variable_get('security_review_known_risky_fields', ''));
+  $known_risky_fields = explode(',', config_get('security_review.settings', 'security_review_known_risky_fields'));
   foreach ($tables as $table => $info) {
     // Column & table come from field definitions & are safe to use in a query.
     $sql = "SELECT DISTINCT entity_id, entity_type, " . $info['column'] . " AS field_text FROM {" . $table . "} WHERE " . $info['column'] . " LIKE :text";
     // Handle changed? @todo
-    foreach (array('Javascript' => '%<script%', 'PHP' => '%<?php%') as $vuln_type => $comparison) {
+    foreach (array(
+      'Javascript' => '%<script%',
+      'PHP' => '%<?php%',
+    ) as $vuln_type => $comparison) {
       $results = db_query($sql, array(':text' => $comparison)); // @pager query?
       foreach ($results as $result) {
         if (!isset($check_result_value[$result->entity_type]) || !array_key_exists($result->entity_id, $check_result_value[$result->entity_type])) {
@@ -545,6 +572,10 @@ function security_review_check_field($last_check = NULL) {
   return array('result' => $check_result, 'value' => $check_result_value);
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_upload_extensions($last_check = NULL) {
   $check_result = TRUE;
   $check_result_value = array();
@@ -572,6 +603,10 @@ function security_review_check_upload_extensions($last_check = NULL) {
   return array('result' => $check_result, 'value' => $check_result_value);
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_name_passwords($last_check = NULL) {
   $result = TRUE;
   $check_result_value = array();
@@ -591,15 +626,15 @@ function security_review_check_name_passwords($last_check = NULL) {
 }
 
 function _security_review_weak_passwords($trusted_roles) {
-  require_once DRUPAL_ROOT . '/' . variable_get('password_inc', 'includes/password.inc');
+  require_once BACKDROP_ROOT . '/' . settings_get('password_inc', 'core/includes/password.inc');
 
   $weak_users = array();
 
   // Select users with a trusted role.
   $query = db_select('users', 'u');
-  $query->leftJoin('users_roles', 'ur', 'u.uid = ur.uid AND ur.rid IN (:rids)', array(':rids' => $trusted_roles));
+  $query->leftJoin('users_roles', 'ur', 'u.uid = ur.uid AND ur.role IN (:roles)', array(':roles' => $trusted_roles));
   $query->fields('u', array('uid', 'name', 'pass'));
-  $query->addExpression('COUNT(rid)', 'count');
+  $query->addExpression('COUNT(role)', 'count');
   $query->groupBy('u.uid');
   $query->groupBy('u.name');
   $query->groupBy('u.pass');
@@ -610,7 +645,7 @@ function _security_review_weak_passwords($trusted_roles) {
   foreach ($results as $row) {
     if ($row->count > 0 || $row->uid == 1) {
       // Make a psuedo account object to avoid loading the user.
-      $account = (object)array(
+      $account = (object) array(
         'uid' => $row->uid,
         'name' => $row->name,
         'pass' => $row->pass,
@@ -634,13 +669,13 @@ function security_review_check_executable_php($last_check = NULL) {
 
   $message = 'Security review test ' . date('Ymdhis');
   $content = "<?php\necho '" . $message . "';";
-  $directory = variable_get('file_public_path', 'sites/default/files');
+  $directory = config_get('system.core', 'file_public_path');
   $file = '/security_review_test.php';
   if ($file_create = @fopen('./' . $directory . $file, 'w')) {
     $create_status = fwrite($file_create, $content);
     fclose($file_create);
   }
-  $response = drupal_http_request($base_url . '/' . $directory . $file);
+  $response = backdrop_http_request($base_url . '/' . $directory . $file);
   if ($response->code == 200 && $response->data === $message) {
     $result = FALSE;
     $check_result_value[] = 'executable_php';
@@ -679,11 +714,11 @@ function security_review_check_executable_php($last_check = NULL) {
  */
 function security_review_check_base_url($last_check = NULL) {
   // Support different methods to check for $base_url.
-  $method = variable_get('security_review_base_url_method', 'token');
+  $method = config_get('security_review.settings', 'security_review_base_url_method');
   $result = NULL;
   if ($method === 'token') {
-    if (file_exists(DRUPAL_ROOT . '/' . conf_path() . '/settings.php')) {
-      $content = file_get_contents(DRUPAL_ROOT . '/' . conf_path() . '/settings.php');
+    if (file_exists(BACKDROP_ROOT . '/' . conf_path() . '/settings.php')) {
+      $content = file_get_contents(BACKDROP_ROOT . '/' . conf_path() . '/settings.php');
       $tokens = token_get_all($content);
     }
     $result = FALSE;
@@ -695,8 +730,8 @@ function security_review_check_base_url($last_check = NULL) {
     }
   }
   elseif ($method === 'include') {
-    if (file_exists(DRUPAL_ROOT . '/' . conf_path() . '/settings.php')) {
-      include DRUPAL_ROOT . '/' . conf_path() . '/settings.php';
+    if (file_exists(BACKDROP_ROOT . '/' . conf_path() . '/settings.php')) {
+      include BACKDROP_ROOT . '/' . conf_path() . '/settings.php';
     }
     if (isset($base_url)) {
       $result = TRUE;
@@ -715,14 +750,14 @@ function security_review_check_temporary_files($last_check = NULL) {
   $result = TRUE;
   $check_result_value = array();
   $files = array();
-  $dir = scandir(DRUPAL_ROOT . '/' . conf_path() . '/');
+  $dir = scandir(BACKDROP_ROOT . '/' . conf_path() . '/');
   foreach ($dir as $file) {
     // Set full path to only files.
     if (!is_dir($file)) {
-      $files[] = DRUPAL_ROOT . '/' . conf_path() . '/' . $file;
+      $files[] = BACKDROP_ROOT . '/' . conf_path() . '/' . $file;
     }
   }
-  drupal_alter('security_review_temporary_files', $files);
+  backdrop_alter('security_review_temporary_files', $files);
   foreach ($files as $path) {
     $matches = array();
     if (file_exists($path) && preg_match('/.*(~|\.sw[op]|\.bak|\.orig|\.save)$/', $path, $matches) !== FALSE && !empty($matches)) {
@@ -748,6 +783,10 @@ function security_review_get_checklist() {
   return $checks;
 }
 
+/**
+ * @todo Please document this function.
+ * @see http://drupal.org/node/1354
+ */
 function security_review_check_views_access($last_check = NULL) {
   $result = TRUE;
   $check_result_value = array();
@@ -843,26 +882,29 @@ function security_review_unsafe_extensions() {
 }
 
 /**
- * Helper function defines the default untrusted Drupal roles.
+ * Helper function defines the default untrusted Backdrop roles.
  */
 function _security_review_default_untrusted_roles() {
-  $roles = array(DRUPAL_ANONYMOUS_RID => t('anonymous user'));
-  $user_register = variable_get('user_register', 1);
+  $roles = array(BACKDROP_ANONYMOUS_ROLE => t('anonymous user'));
+  $user_register = config_get('system.core', 'user_register');
   // If visitors are allowed to create accounts they are considered untrusted.
   if ($user_register != USER_REGISTER_ADMINISTRATORS_ONLY) {
-    $roles[DRUPAL_AUTHENTICATED_RID] = t('authenticated user');
+    $roles[BACKDROP_AUTHENTICATED_ROLE] = t('authenticated user');
   }
   return $roles;
 }
 
 /**
- * Helper function for user-defined or default unstrusted Drupal roles.
+ * Helper function for user-defined or default unstrusted Backdrop roles.
  *
  * @return An associative array with the role id as the key and the role name as value.
  */
 function security_review_untrusted_roles() {
   $defaults = _security_review_default_untrusted_roles();
-  $roles = variable_get('security_review_untrusted_roles', $defaults);
+  $roles = config_get('security_review.settings', 'security_review_untrusted_roles');
+  if (empty($roles)) {
+    $roles = $defaults;
+  }
   // array_filter() to remove roles with 0 (meaning they are trusted) @todo
   return array_filter($roles);
 }
@@ -876,13 +918,11 @@ function security_review_untrusted_permissions() {
     $permissions = array();
     // Collect list of untrusted roles' permissions.
     $untrusted_roles = security_review_untrusted_roles();
-    foreach ($untrusted_roles as $rid) {
+    foreach ($untrusted_roles as $role) {
       $perms = array();
-      $results = db_query('SELECT r.rid, p.permission FROM {role} r LEFT JOIN {role_permission} p ON r.rid = p.rid WHERE r.rid = :rid', array(':rid' => $rid))
-        ->fetchArray();
+      $perms = user_role_permissions(array($role));
       if ($results !== FALSE) {
-        $perms = explode(',', str_replace(', ', ',', $results['permission']));
-        $permissions[$rid] = $perms;
+        $permissions[$role] = $perms;
       }
     }
   }
@@ -895,9 +935,10 @@ function security_review_untrusted_permissions() {
 function security_review_trusted_roles() {
   $trusted_roles = array();
   $untrusted_roles = security_review_untrusted_roles();
-  $results = db_query('SELECT rid, name FROM {role} WHERE rid NOT IN (:rids)', array(':rids' => $untrusted_roles));
-  foreach ($results as $role) {
-    $trusted_roles[$role->rid] = $role->name;
+  $roles = user_roles(FALSE, NULL, TRUE);
+  $diff_roles = array_diff_key($roles, $untrusted_roles);
+  foreach ($diff_roles as $role) {
+    $trusted_roles[$role->name] = $role->label;
   }
   return array_filter($trusted_roles);
 }
@@ -905,10 +946,10 @@ function security_review_trusted_roles() {
 /**
  * Check if role has been granted a permission.
  */
-function security_review_role_permission($rid, $permission) {
+function security_review_role_permission($role, $permission) {
   $return = FALSE;
-  $result = db_select('role_permission', 'p')->fields('p', array('permission'))->condition('rid', $rid)->execute()->fetchField();
-  if ($result['permission'] && strpos($result['permission'], $permission) !== FALSE) {
+  $permissions = user_role_permissions(array($role));
+  if (in_array($permission, $permissions)) {
     $return = TRUE;
   }
   return $return;

@@ -1,0 +1,12 @@
+{
+    "_config_name": "security_review.settings",
+    "security_review_known_risky_fields": "",
+    "check_settings": {
+        "security_review_base_url_method": "token"
+    },
+    "security_review_untrusted_roles": {
+        "anonymous": "anonymous",
+        "authenticated": "authenticated"
+    },
+    "security_review_log": true
+}

@@ -1,5 +1,4 @@
-
--- ABOUT --
+# Security Review
 
 Security Review automates checking many of the configuration errors that lead
 to an insecure Drupal site and looks for existing vulnerabilities and attack
@@ -13,16 +12,16 @@ use the results of the checklist and its resources to manually secure your site.
 Refer to the support section below if you are interested in securing your Drupal
 site.
 
--- INSTALLATION --
+## Installation
 
 Place the security_review directory and its contents under sites/all/modules or
 under an appropriate sites/ directory if you are using Drupal's multisite
 capabilities.
 
-Enable the module at Administer >> Modules and refer to the
-following sections for configuration and usage.
+Enable the module at Administer >> Modules and refer to the following sections
+for configuration and usage.
 
--- CONFIGURATION --
+## Configuration
 
 Two permissions are provided and required to use the module. Navigate to
 Administer >> People >> Permissions to enable
@@ -44,7 +43,7 @@ On this page you can also define the level of logging. The result
 of the last checklist is always stored but you can enable watchdog logging of
 each check if you like.
 
--- USAGE --
+## Usage
 
 Navigate to Administer >> Reports >> Security Review to run the checklist.
 
@@ -52,37 +51,37 @@ If a check is enabled it will be run. You can enable or skip a check on this
 page only after it has been run. Clicking on the 'Help' link beside each check
 will provide details on why the check exists and what was found on the last run.
 
--- DRUSH USAGE --
+## Drush Usage
 
 Running the Security Review checklist using Drush is a great way to build
 automated security audits of your site into your site development lifecycle and
 as part of continuous integration.
 
-With the module installed invoke 'drush secrev' from within your Drupal root.
+With the module installed invoke `drush secrev` from within your Drupal root.
 
-Call 'drush help secrev' to see available options.
+Call `drush help secrev` to see available options.
 
-For running specific checks pass the '--check' option. Be sure to remove any
+For running specific checks pass the `--check` option. Be sure to remove any
 whitespace characters separating check names.
 
-Consult implementations of hook_security_checks() for exact list of available
+Consult implementations of `hook_security_checks()` for exact list of available
 check options. Standard Security Review checks are:
 
-file_perms, input_formats, field, error_reporting, private_files, query_errors,
-failed_logins, upload_extensions, admin_permissions, untrusted_php,
-executable_php, base_url_set, temporary_files
+`file_perms`, `input_formats`, `field`, `error_reporting`, `private_files`, `query_errors`,
+`failed_logins`, `upload_extensions`, `admin_permissions`, `untrusted_php`,
+`executable_php`, `base_url_set`, `temporary_files`
 
 For custom checks you may prefix the check name with the module name and
 colon (:) character. For example:
 
-'drush secrev --check=my_module:my_check'
+`drush secrev --check=my_module:my_check`
 
 Note, custom checks require that its module be enabled. Also, should you be
 skipping any check the 'store' option will not allow that check to be run.
 
--- SITE AUDIT USAGE --
+## Site Audit Usage
 
-Security Review also integrates with https://www.drupal.org/project/site_audit ,
+Security Review also integrates with <https://www.drupal.org/project/site_audit> ,
 a static site analysis platform that generates reports with actionable best
 practice recommendations. Security Review can be installed on an entire
 platform, eliminating the need for module installation.
@@ -90,10 +89,12 @@ platform, eliminating the need for module installation.
 To use, put Security Review either in your codebase or in your Drush command
 locations, then:
 
-    # Clear Drush cache.
-    drush cc drush
-    # Audit security.
-    drush audit_security
+```bash
+# Clear Drush cache.
+drush cc drush
+# Audit security.
+drush audit_security
+```
 
 ### Marking field content as known to be safe
 
@@ -103,22 +104,28 @@ that you want to be skipped in future runs by creating a SHA-256 hash of the
 entity_id, entity_type, and field contents. See security_review_check_field
 function in security_review.inc for details.
 
--- SUPPORT --
+## Support
 
-Please use the issue queue at https://drupal.org/project/security_review for all
+Please use the issue queue at <https://github.com/backdrop-contrib/security_review/issues> for all
 module support. You can read more about securely configuring your site at
-http://drupal.org/security/secure-configuration and http://drupalscout.com
+<https://github.com/backdrop-contrib/security_review/>
 
-Acquia, the provider of this module, offers detailed,
-targetted security review and support for Drupal websites and can be contacted
-at http://wwww.acquia.com or via email at sales@acquia.com.
+## Current Maintainers
 
-You can read more about our Drupal security review service at
-http://www.acquia.com/products-services/professional-services/offerings#security_audit
+- Herb v/d Dool <https://github.com/herbdool>
+- Seeking additional maintainers.
 
+## Credit
 
--- CREDIT --
+Ported to Backdrop by Herb v/d Dool <https://github.com/herbdool>.
 
 Security Review module written by Benjamin Jeavons, drupal.org user coltrane,
 with thanks to Greg Knaddison, drupal.org user greggles, for the idea and
 mentorship.
+
+Acquia <https://wwww.acquia.com> supports the orginal Drupal 7 version of this module.
+
+## License
+
+This project is GPL v2 software. See the LICENSE.txt file in this directory for
+complete text.
