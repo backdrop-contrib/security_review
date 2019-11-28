@@ -51,7 +51,7 @@ function security_review_reviewed($checklist, $checks, $namespace = NULL) {
     }
     $message = $check['result'] ? $checklist[$check['namespace']][$check['reviewcheck']]['success'] : $checklist[$check['namespace']][$check['reviewcheck']]['failure'];
     $title = $check['result'] ? t('OK') : t('Error');
-    $class = $check['skip'] ? 'info' : ($check['result'] ? 'ok' : 'error');
+    $class = $check['skip'] ? 'report-info' : ($check['result'] ? 'report-status' : 'report-error');
     $toggle = $check['skip'] ? t('Enable') : t('Skip');
     $token = backdrop_get_token($check['reviewcheck']);
     $link_options = array(
@@ -435,7 +435,7 @@ function theme_security_review_reviewed($variables) {
   if (!empty($variables['items'])) {
     foreach ($variables['items'] as $item) {
       $output .= '<tr class="' . $item['class'] . '">';
-      $output .= '<td class="status-icon"><div title="' . $item['title'] . '"><span class="element-invisible">' . $item['title'] . '</span></div></td>';
+      $output .= '<td class="report-icon"><div title="' . $item['title'] . '"><span class="element-invisible">' . $item['title'] . '</span></div></td>';
       $output .= '<td>' . $item['message'] . '</td>';
       $output .= '<td>' . $item['help_link'] . '</td>';
       $output .= '<td>' . $item['toggle_link'] . '</td>';
