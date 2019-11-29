@@ -2,5 +2,5 @@
 name = Security Review tests
 description = Test the Security Review module.
 group = Security Review
-file = tests/security_review.test
+file = security_review.test
 

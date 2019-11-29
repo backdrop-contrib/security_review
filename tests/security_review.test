@@ -20,10 +20,11 @@ class SecurityReviewTestCase extends BackdropWebTestCase {
       'access administration pages',
       'administer filters',
       'administer site configuration',
-      'create article content',
+      'create post content',
       'administer nodes',
       'administer content types',
       'administer fields',
+      'access site reports',
     ));
     $this->backdropLogin($this->privileged_user);
   }
@@ -40,9 +41,9 @@ class SecurityReviewTestCase extends BackdropWebTestCase {
     $this->assertLinkByHref($settings_path, 0, 'Link to settings appears');
     $this->backdropGet($settings_path);
     $this->assertText('Untrusted roles', 'Untrusted roles header appears');
-    $this->assertFieldChecked('edit-security-review-untrusted-roles-1', 'Anonymous users are marked as untrusted');
-    $this->assertFieldChecked('edit-security-review-untrusted-roles-2', 'Authenticated users are marked as untrusted');
-    $this->assertNoFieldChecked('edit-security-review-untrusted-roles-3', 'Adminitrator users are not marked as untrusted');
+    $this->assertFieldChecked('edit-security-review-untrusted-roles-anonymous', 'Anonymous users are marked as untrusted');
+    $this->assertFieldChecked('edit-security-review-untrusted-roles-authenticated', 'Authenticated users are marked as untrusted');
+    $this->assertNoFieldChecked('edit-security-review-untrusted-roles-administrator', 'Adminitrator users are not marked as untrusted');
     $this->assertFieldChecked('edit-security-review-log', 'Log results is checked');
     $this->assertText('Base URL check method');
 
@@ -53,6 +54,11 @@ class SecurityReviewTestCase extends BackdropWebTestCase {
       $this->assertNoFieldChecked($field, 'Adminitrator users are not marked as untrusted');
     }
 
+    $submit_button = 'Save configuration';
+    // Skip error reporting, change setting and test check result.
+    $edit = array();
+    $this->backdropPost('admin/reports/security-review/settings', $edit, $submit_button);
+
     // Confirm check-specific help pages are working.
     foreach ($secrev_checks as $name => $check) {
       $path = 'admin/reports/security-review/help/security_review/' . $name;
@@ -61,6 +67,7 @@ class SecurityReviewTestCase extends BackdropWebTestCase {
     }
 
     // Run the checklist
+    $this->runChecklist();
     $this->runChecklist();
     $this->assertText('Review results from last run');
     $this->assertText('Details');
@@ -77,6 +84,8 @@ class SecurityReviewTestCase extends BackdropWebTestCase {
    *
    */
   protected function runChecklist() {
+    $this->backdropPost('admin/reports/security-review/settings', array(), 'Save configuration');
+
     $run_path = 'admin/reports/security-review';
     $edit = array();
     $this->backdropPost($run_path, $edit, t('Run checklist'));
@@ -97,15 +106,15 @@ class SecurityReviewTestCase extends BackdropWebTestCase {
 
     // Test text formats check.
     $check = security_review_check_input_formats();
-    $this->assertTrue($check['result'], 'Text formats check passes');
+    $this->assertFalse($check['result'], 'Text formats check fails');
 
     // No content yet submitted.
     $check = security_review_check_field();
     $this->assertTrue($check['result'], 'Unsafe content in fields check passes');
 
-    // Error reporting defaults to screen.
+    // Error reporting defaults to hidden.
     $check = security_review_check_error_reporting();
-    $this->assertFalse($check['result'], 'Error reporting check fails');
+    $this->assertTrue($check['result'], 'Error reporting check passes');
 
     // Failed logins is null.
     $check = security_review_check_failed_logins();
@@ -122,8 +131,9 @@ class SecurityReviewTestCase extends BackdropWebTestCase {
 
   public function testChecksUI() {
     $this->runChecklist();
-    $this->assertText('Untrusted users are not allowed to input dangerous HTML tags.');
-    $this->assertText('Errors are written to the screen.');
+    $this->runChecklist();
+    $this->assertText('Untrusted users are allowed to input dangerous HTML tags.');
+    $this->assertText('Error reporting set to log only.');
     $this->assertText('Dangerous tags were not found in any submitted content (fields).');
     $this->assertText('Only safe extensions are allowed for uploaded files and images.');
     // Alter text formats.
@@ -133,14 +143,14 @@ class SecurityReviewTestCase extends BackdropWebTestCase {
     $this->runChecklist();
     $this->assertText('Untrusted users are allowed to input dangerous HTML tags.');
     // Confirm some other checks haven't changed.
-    $this->assertText('Errors are written to the screen.');
+    $this->assertText('Error reporting set to log only.');
     $this->assertText('Dangerous tags were not found in any submitted content (fields).');
     $this->assertText('Only safe extensions are allowed for uploaded files and images.');
     // Alter error reporting.
-    $edit = array('error_level' => 0);
+    $edit = array('error_level' => 'all');
     $this->backdropPost('admin/config/development/logging', $edit, $submit_button);
     $this->runChecklist();
-    $this->assertText('Error reporting set to log only.');
+    $this->assertText('Errors are written to the screen.');
     // Confirm some other checks haven't changed.
     $this->assertText('Untrusted users are allowed to input dangerous HTML tags.');
     $this->assertText('Dangerous tags were not found in any submitted content (fields).');
@@ -150,21 +160,21 @@ class SecurityReviewTestCase extends BackdropWebTestCase {
       'title' => 'test node',
       'body[und][0][value]' => '<script>alert("testing!");</script>',
     );
-    $this->backdropPost('node/add/article', $edit, 'Save');
+    $this->backdropPost('node/add/post', $edit, 'Save');
     $this->runChecklist();
     $this->assertText('Dangerous tags were found in submitted content (fields).');
     // Confirm some other checks haven't changed.
-    $this->assertText('Error reporting set to log only.');
+    $this->assertText('Errors are written to the screen.');
     $this->assertText('Untrusted users are allowed to input dangerous HTML tags.');
     $this->assertText('Only safe extensions are allowed for uploaded files and images.');
-    // Alter article image upload extensions.
+    // Alter post image upload extensions.
     $edit = array('instance[settings][file_extensions]' => 'exe, php');
-    $this->backdropPost('admin/structure/types/manage/article/fields/field_image', $edit, 'Save settings');
+    $this->backdropPost('admin/structure/types/manage/post/fields/field_image', $edit, 'Save settings');
     $this->runChecklist();
     $this->assertText('Unsafe file extensions are allowed in uploads.');
     // Confirm some other checks haven't changed.
     $this->assertText('Dangerous tags were found in submitted content (fields).');
-    $this->assertText('Error reporting set to log only.');
+    $this->assertText('Errors are written to the screen.');
     $this->assertText('Untrusted users are allowed to input dangerous HTML tags.');
   }
 
@@ -176,7 +186,7 @@ class SecurityReviewTestCase extends BackdropWebTestCase {
     $this->runChecklist();
     $this->assertText('Errors are written to the screen.');
     // Alter error reporting.
-    $edit = array('error_level' => 0);
+    $edit = array('error_level' => 'hide');
     $this->backdropPost('admin/config/development/logging', $edit, $submit_button);
     $this->runChecklist();
     // Result still the same.

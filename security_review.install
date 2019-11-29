@@ -118,10 +118,11 @@ function security_review_update_1000() {
   $config->set('security_review_known_risky_fields', update_variable_get('security_review_known_risky_fields', ''));
   $config->set('check_settings.security_review_base_url_method', update_variable_get('security_review_base_url_method', 'token'));
   $config->set('security_review_untrusted_roles', update_variable_get('security_review_untrusted_roles', array(BACKDROP_AUTHENTICATED_ROLE, BACKDROP_ANONYMOUS_ROLE)));
-  $config->set('security_review_log', update_variable_get('security_review_log', 'TRUE'));
+  $config->set('security_review_log', update_variable_get('security_review_log', TRUE));
   $config->save();
 
   state_set('security_review_last_run', update_variable_get('security_review_last_run', ''));
+  state_set('security_review_configured', update_variable_get('security_review_log', FALSE));
 
   update_variable_del('security_review_known_risky_fields');
   update_variable_del('security_review_base_url_method');

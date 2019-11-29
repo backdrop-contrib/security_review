@@ -308,7 +308,7 @@ function security_review_check_input_formats() {
   $untrusted_roles = array_keys($untrusted_roles);
   foreach ($formats as $id => $format) {
     $format_roles = filter_get_roles_by_format($format);
-    $intersect = array_intersect(array_keys($format_roles), $untrusted_roles);
+    $intersect = array_intersect($format_roles, $untrusted_roles);
     if (!empty($intersect)) {
       // Untrusted users can use this format.
       $filters = filter_list_format($format->format);
@@ -373,7 +373,7 @@ function security_review_check_php_filter() {
  */
 function security_review_check_error_reporting() {
   $error_level = config_get('system.core', 'error_level');
-  if (is_null($error_level) || intval($error_level) >= 1) {
+  if (is_null($error_level) || $error_level != 'hide') {
     // When the variable isn't set, or its set to 1 or 2 errors are printed to the screen.
     $result = FALSE;
   }

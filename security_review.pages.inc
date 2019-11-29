@@ -26,7 +26,7 @@ function security_review_page() {
   }
   else {
     // If they haven't configured the site, prompt them to do so.
-    $variable = config_get('security_review.settings', 'security_review_log');
+    $variable = state_get('security_review_configured');
     if (!$variable) {
       backdrop_set_message(t('It appears this is your first time using the Security Review checklist. Before running the checklist please review the settings page at !link to set which roles are untrusted.', array('!link' => l('admin/reports/security-review/settings', 'admin/reports/security-review/settings'))));
     }
@@ -287,11 +287,7 @@ function _security_review_settings_submit($form, &$form_state) {
   // Unset security_review_skip to keep it from being written to a variable.
   unset($form_state['values']['security_review_skip']);
 
-  // Set check-specific settings.
-  foreach ($form_state['values']['check_settings'] as $variable_name => $value) {
-    // TODO This variable was probably removed in Backdrop without replacement.
-    variable_set($variable_name, $value);
-  }
+  state_set('security_review_configured', TRUE);
 }
 
 /**
