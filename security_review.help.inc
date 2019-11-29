@@ -5,6 +5,9 @@
  * Main help definition.
  */
 
+/**
+ * Structure and output help text.
+ */
 function _security_review_help() {
   backdrop_add_js(backdrop_get_path('module', 'security_review') . '/js/security_review.js');
   $output = '';
@@ -16,9 +19,9 @@ function _security_review_help() {
     Be mindful of who visits your site and what features you expose for their use.');
   $output .= '</p>';
   $output .= '<p>';
-  $output .= t('You can read more about securing your site in the <a href="!do">drupal.org handbooks</a> and on <a href="!cd">CrackingDrupal.com</a>.
+  $output .= t('You can read more about securing your site in the <a href="!do">drupal.org handbooks</a>.
     There are also additional modules you can install to secure or protect your site. Be aware though that the more modules you have running on your site the greater (usually) attack area you expose.',
-    array('!do' => 'http://drupal.org/security/secure-configuration', '!cd' => 'http://crackingdrupal.com'));
+    array('!do' => 'http://drupal.org/security/secure-configuration',));
   $output .= '</p>';
   $output .= '<p>' . l(t('Drupal.org Handbook: Introduction to security-related contrib modules'), 'http://drupal.org/node/382752') . '</p>';
   /*$output .= '<h3>' . t('Contrib modules for additional security and strength') . '</h3>';
@@ -29,6 +32,13 @@ function _security_review_help() {
   return $output;
 }
 
+/**
+ * SSL help.
+ *
+ * Currently disabled.
+ *
+ * @see _security_review_help().
+ */
 function _security_review_help_ssl() {
   $description = t('The transfer of data between the visitor on your site and you Backdrop installation can be secured through encryption.');
   $element = array(
@@ -45,6 +55,13 @@ function _security_review_help_ssl() {
   return theme('security_review_help_options', array('element' => $element));
 }
 
+/**
+ * Spam help.
+ *
+ * Currently disabled.
+ *
+ * @see _security_review_help().
+ */
 function _security_review_help_spam() {
   $element = array(
     'problem' => t("Spammers and spam content"),
@@ -61,8 +78,7 @@ function _security_review_help_spam() {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Theme function for structuring help options.
  */
 function theme_security_review_help_options($element) {
   $output = '<div class="sec-rev-help-option">';
@@ -79,8 +95,9 @@ function theme_security_review_help_options($element) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Callback: File permissions help.
+ *
+ * @see security_review_check_help().
  */
 function security_review_check_file_perms_help($check = NULL, $skipped_message = NULL) {
   $element['title'] =  t("Web server file system permissions");
@@ -104,8 +121,9 @@ function security_review_check_file_perms_help($check = NULL, $skipped_message =
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Callback: input formats help.
+ *
+ * @see security_review_check_help().
  */
 function security_review_check_input_formats_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Allowed HTML tags in text formats');
@@ -141,8 +159,9 @@ function security_review_check_input_formats_help($check = NULL, $skipped_messag
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Callback: php filter help.
+ *
+ * @see security_review_check_help().
  */
 function security_review_check_php_filter_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('PHP Input Format');
@@ -167,8 +186,9 @@ function security_review_check_php_filter_help($check = NULL, $skipped_message =
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Callback: error reporting help.
+ *
+ * @see security_review_check_help().
  */
 function security_review_check_error_reporting_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Error reporting');
@@ -185,8 +205,9 @@ function security_review_check_error_reporting_help($check = NULL, $skipped_mess
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Callback: private files help.
+ *
+ * @see security_review_check_help().
  */
 function security_review_check_private_files_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Private files');
@@ -207,8 +228,9 @@ function security_review_check_private_files_help($check = NULL, $skipped_messag
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Callback: query errors help.
+ *
+ * @see security_review_check_help().
  */
 function security_review_check_query_errors_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Abundant query errors from the same IP');
@@ -230,8 +252,9 @@ function security_review_check_query_errors_help($check = NULL, $skipped_message
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Callback: failed logins help.
+ *
+ * @see security_review_check_help().
  */
 function security_review_check_failed_logins_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Abundant failed logins from the same IP');
@@ -253,13 +276,14 @@ function security_review_check_failed_logins_help($check = NULL, $skipped_messag
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Callback: admin permissions help.
+ *
+ * @see security_review_check_help().
  */
 function security_review_check_admin_permissions_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Admin and trusted Backdrop permissions');
   $element['descriptions'][] = t("Backdrop's permission system is extensive and allows for varying degrees of control. Certain permissions would allow a user total control, or the ability to escalate their control, over your site and should only be granted to trusted users.");
-  $element['descriptions'][] = t('<a href="!link">Read more about trusted vs. untrusted roles and permissions on BackdropScout.com.</a>', array('!link' => url('http://backdropscout.com/knowledge-base/importance-user-roles-and-permissions-site-security')));
+  $element['descriptions'][] = t('<a href="!link">Read more about trusted vs. untrusted roles and permissions on BackdropCMS.org.</a>', array('!link' => url('https://backdropcms.org/user-guide/security-roles-and-permissions')));
 
   if (!empty($skipped_message)) {
     $element['findings']['descriptions'][] = $skipped_message;
@@ -282,8 +306,9 @@ function security_review_check_admin_permissions_help($check = NULL, $skipped_me
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Callback: check field help.
+ *
+ * @see security_review_check_help().
  */
 function security_review_check_field_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Dangerous tags in content');
@@ -326,8 +351,9 @@ function security_review_check_field_help($check = NULL, $skipped_message = NULL
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Callback: upload extensions help.
+ *
+ * @see security_review_check_help().
  */
 function security_review_check_upload_extensions_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Allowed upload extensions');
@@ -352,8 +378,9 @@ function security_review_check_upload_extensions_help($check = NULL, $skipped_me
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Callback: Views access help.
+ *
+ * @see security_review_check_help().
  */
 function security_review_check_views_access_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Views access');
@@ -381,8 +408,9 @@ function security_review_check_views_access_help($check = NULL, $skipped_message
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Callback: weak passwords help.
+ *
+ * @see security_review_check_help().
  */
 function security_review_check_name_passwords_help($check = NULL, $skipped_message = NULL) {
   $element['title'] = t('Username as password');
@@ -407,8 +435,9 @@ function security_review_check_name_passwords_help($check = NULL, $skipped_messa
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Callback: executable php help.
+ *
+ * @see security_review_check_help().
  */
 function security_review_check_executable_php_help($check = NULL, $skipped_message = NULL) {
   $element = array();
@@ -447,8 +476,9 @@ function security_review_check_executable_php_help($check = NULL, $skipped_messa
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Callback: base_url help.
+ *
+ * @see security_review_check_help().
  */
 function security_review_check_base_url_help($check = NULL, $skipped_message = NULL) {
   global $base_url;
@@ -469,8 +499,9 @@ function security_review_check_base_url_help($check = NULL, $skipped_message = N
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Callback: temporary files help.
+ *
+ * @see security_review_check_help().
  */
 function security_review_check_temporary_files_help($check = NULL, $skipped_message = NULL) {
   $element = array();

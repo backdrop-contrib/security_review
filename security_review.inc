@@ -340,8 +340,9 @@ function security_review_check_input_formats() {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Check php filter.
+ *
+ * @see _security_review_security_checks().
  */
 function security_review_check_php_filter() {
   $result = TRUE;
@@ -368,8 +369,9 @@ function security_review_check_php_filter() {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Check if error reporting is printed to screen or hidden.
+ *
+ * @see _security_review_security_checks().
  */
 function security_review_check_error_reporting() {
   $error_level = config_get('system.core', 'error_level');
@@ -404,8 +406,9 @@ function security_review_check_private_files() {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Check query errors
+ *
+ * @see _security_review_security_checks()
  */
 function security_review_check_query_errors($last_check = NULL) {
   $timestamp = NULL;
@@ -441,8 +444,9 @@ function security_review_check_query_errors($last_check = NULL) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Check failed logins.
+ *
+ * @see _security_review_security_checks()
  */
 function security_review_check_failed_logins($last_check = NULL) {
   $result = TRUE;
@@ -505,8 +509,9 @@ function security_review_check_admin_permissions() {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Check fields for PHP or Javascript tags.
+ *
+ * @see _security_review_security_checks()
  */
 function security_review_check_field($last_check = NULL) {
   $check_result = TRUE;
@@ -573,8 +578,9 @@ function security_review_check_field($last_check = NULL) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Check upload extensions.
+ *
+ * @see _security_review_security_checks()
  */
 function security_review_check_upload_extensions($last_check = NULL) {
   $check_result = TRUE;
@@ -604,8 +610,9 @@ function security_review_check_upload_extensions($last_check = NULL) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Check for weak passwords.
+ *
+ * @see _security_review_security_checks()
  */
 function security_review_check_name_passwords($last_check = NULL) {
   $result = TRUE;
@@ -784,8 +791,9 @@ function security_review_get_checklist() {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Check Views access.
+ *
+ * @see _security_review_security_checks().
  */
 function security_review_check_views_access($last_check = NULL) {
   $result = TRUE;

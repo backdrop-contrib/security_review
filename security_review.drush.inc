@@ -263,8 +263,9 @@ function _security_review_drush_findings_output($check) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Callback for password check setup.
+ *
+ * @see security_review_drush_command().
  */
 function security_review_drush_hash_setup() {
   $args = func_get_args();

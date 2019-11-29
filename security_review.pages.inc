@@ -35,8 +35,9 @@ function security_review_page() {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Structure the output of review results.
+ *
+ * @see security_review_page()
  */
 function security_review_reviewed($checklist, $checks, $namespace = NULL) {
   $items = array();
@@ -73,8 +74,9 @@ function security_review_reviewed($checklist, $checks, $namespace = NULL) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Form for running the security checklist.
+ *
+ * @see security_review_page().
  */
 function security_review_run_form($form, &$form_state, $checks = NULL) {
   $form['run_form'] = array(
@@ -93,8 +95,9 @@ function security_review_run_form($form, &$form_state, $checks = NULL) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Submit function for run form.
+ *
+ * @see security_review_run_form().
  */
 function security_review_run_form_submit($form, &$form_state) {
   module_load_include('inc', 'security_review');
@@ -153,7 +156,7 @@ function security_review_settings() {
   $form['security_review_untrusted_roles'] = array(
     '#type' => 'checkboxes',
     '#title' => t('Untrusted roles'),
-    '#description' => t('Mark which roles are not trusted. The anonymous role defaults to untrusted. @message Read more about the idea behind trusted and untrusted roles on <a href="!url">DrupalScout.com</a>. Most Security Review checks look for resources usable by untrusted roles.', array('@message' => $message, '!url' => url('http://drupalscout.com/knowledge-base/importance-user-roles-and-permissions-site-security'))),
+    '#description' => t('Mark which roles are not trusted. The anonymous role defaults to untrusted. @message Read more about the idea behind trusted and untrusted roles in the <a href="!url">Backdrop User Guide</a>. Most Security Review checks look for resources usable by untrusted roles.', array('@message' => $message, '!url' => url('https://backdropcms.org/user-guide/security-roles-and-permissions'))),
     '#options' => $options,
     '#default_value' => $config->get('security_review_untrusted_roles'),
   );
@@ -402,7 +405,7 @@ function security_review_check_help($module = NULL, $check_name = NULL) {
     $output = _security_review_help();
     // List all checks as links to specific help.
     $output .= '<h3>' . t('Check-specific help') . '</h3>';
-    $output .= '<p>' . t("Details and help on the security review checks. Checks are not always perfectly correct in their procedure and result. Refer to drupal.org handbook documentation if you are unsure how to make the recommended alterations to your configuration or consult the module's README.md for support.") . '</p>';
+    $output .= '<p>' . t("Details and help on the security review checks. Checks are not always perfectly correct in their procedure and result. Refer to backdropcms.org handbook documentation if you are unsure how to make the recommended alterations to your configuration or consult the module's README.md for support.") . '</p>';
     foreach ($checklist as $module => $checks) {
       foreach ($checks as $reviewcheck => $check) {
         $items[] = l($check['title'], 'admin/reports/security-review/help/' . $module . '/' . $reviewcheck);
@@ -419,8 +422,9 @@ function security_review_check_help($module = NULL, $check_name = NULL) {
 }
 
 /**
- * @todo Please document this function.
- * @see http://drupal.org/node/1354
+ * Theme function for security_review_reviewed.
+ *
+ * @see security_review_reviewed().
  */
 function theme_security_review_reviewed($variables) {
   // @todo

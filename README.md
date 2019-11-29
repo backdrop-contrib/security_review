@@ -1,21 +1,21 @@
 # Security Review
 
 Security Review automates checking many of the configuration errors that lead
-to an insecure Drupal site and looks for existing vulnerabilities and attack
+to an insecure Backdrop site and looks for existing vulnerabilities and attack
 attempts.
 
 The primary goal of the module is to elevate your awareness of the importance of
-securing your Drupal site. The results of some checks may be incorrect depending
+securing your Backdrop site. The results of some checks may be incorrect depending
 on unique factors, this module does not make your site more secure. You should
 use the results of the checklist and its resources to manually secure your site.
 
-Refer to the support section below if you are interested in securing your Drupal
+Refer to the support section below if you are interested in securing your Backdrop
 site.
 
 ## Installation
 
 Place the security_review directory and its contents under sites/all/modules or
-under an appropriate sites/ directory if you are using Drupal's multisite
+under an appropriate sites/ directory if you are using Backdrop's multisite
 capabilities.
 
 Enable the module at Administer >> Modules and refer to the following sections
@@ -57,7 +57,7 @@ Running the Security Review checklist using Drush is a great way to build
 automated security audits of your site into your site development lifecycle and
 as part of continuous integration.
 
-With the module installed invoke `drush secrev` from within your Drupal root.
+With the module installed invoke `drush secrev` from within your Backdrop root.
 
 Call `drush help secrev` to see available options.
 
