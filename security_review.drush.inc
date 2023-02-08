@@ -158,6 +158,7 @@ function security_review_drush() {
     // Run the checklist.
     $checklist_results = security_review_run($checklist, $log ? TRUE : NULL);
     if ($store) {
+      variable_set('security_review_last_run', time());
       security_review_store_results($checklist_results);
     }
     // Compile results.
@@ -249,6 +250,11 @@ function _security_review_drush_findings_output($check) {
     $function = $check['callback'] . '_help';
     if (function_exists($function)) {
       $element = $function($check);
+      if (is_array($element['findings']['descriptions'])) {
+        foreach ($element['findings']['descriptions'] as $description) {
+          $findings[] = $description;
+        }
+      }
       if (is_array($element['findings']['items'])) {
         foreach ($element['findings']['items'] as $item) {
           if (is_array($item) && isset($item['raw'])) {

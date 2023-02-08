@@ -594,8 +594,9 @@ function security_review_check_upload_extensions($last_check = NULL) {
         $field = field_info_field($field_name);
         if ($field['module'] == 'image' || $field['module'] == 'file') {
           // Check instance file_extensions.
+          $allowed_extensions = explode(' ', $instance['settings']['file_extensions']);
           foreach ($unsafe_extensions as $unsafe_extension) {
-            if (strpos($instance['settings']['file_extensions'], $unsafe_extension) !== FALSE) {
+            if (in_array($unsafe_extension, $allowed_extensions)) {
               // Found an unsafe extension.
               $check_result_value[$instance['field_name']][$instance['bundle']] = $unsafe_extension;
               $check_result = FALSE;
@@ -703,7 +704,12 @@ function security_review_check_executable_php($last_check = NULL) {
     $contents = file_get_contents($directory . '/.htaccess');
     // Text from includes/file.inc.
     $expected = file_htaccess_lines(FALSE);
-    if (trim($contents) !== trim($expected)) {
+
+    // Trim each line separately then put them back together.
+    $expected = implode("\n", array_map('trim', explode("\n", trim($expected))));
+    $contents = implode("\n", array_map('trim', explode("\n", trim($contents))));
+
+    if ($contents !== $expected) {
       $result = FALSE;
       $check_result_value[] = 'incorrect_htaccess';
     }
